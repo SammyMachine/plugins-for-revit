@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+	<AddIn Type="Application">
+		<Name>Plugins Giprobum</Name>
+		<Assembly>C:\Users\polen\Desktop\_blog\plugins\plugins.dll</Assembly>
+		<AddInId>F11A4799-1E7B-4349-BEBB-C359C469FD09</AddInId>
+		<FullClassName>plugins.Main</FullClassName>
+		<VendorId>Vladislav Polenkov</VendorId>
+		<Publisher>Vladislav [sammyxd] Polenkov</Publisher>
+		<VendorDescription>Plugins description, populate later,...</VendorDescription>
+	</AddIn>
+</RevitAddIns>
