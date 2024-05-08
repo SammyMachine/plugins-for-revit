@@ -16,7 +16,7 @@
             var uiDoc = uiApp.ActiveUIDocument;
             var doc = uiDoc.Document;
 
-            Methods methods = new Methods();
+            Utils methods = new Utils();
 
             // Показать форму для выбора типа семейства
             string selectedFamilyType = methods.ShowFamilyTypeSelectionForm(doc);

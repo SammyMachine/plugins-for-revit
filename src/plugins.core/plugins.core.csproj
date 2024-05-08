@@ -53,7 +53,7 @@
   <ItemGroup>
     <Compile Include="Commands\CommandsPanel\AntiConnectionsCommand.cs" />
     <Compile Include="Commands\CommandsPanel\CuttingHolesCommand.cs" />
-    <Compile Include="Commands\CommandsPanel\Methods.cs" />
+    <Compile Include="Commands\CommandsPanel\Utils.cs" />
     <Compile Include="Commands\CommandsPanel\SplittingWallsAndColumnsCommand.cs" />
     <Compile Include="CoreAssembly.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

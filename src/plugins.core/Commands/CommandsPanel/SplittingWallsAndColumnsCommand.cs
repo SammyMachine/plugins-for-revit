@@ -16,58 +16,29 @@
             var app = uiApp.Application;
             var uiDoc = uiApp.ActiveUIDocument;
             var doc = uiDoc.Document;
-
-            Methods methods = new Methods();
-
+            Utils methods = new Utils();
             int chooseFlag = methods.CreateChooseForm();
-
-            string userInput = "";
             bool isWall = false;
-
+            List<Element> selectedElements = new List<Element>();
             if (chooseFlag == 1)
             {
-                userInput = methods.CreateTextField("Введите тип стен для разрезания");
+                selectedElements = methods.GetElementsByType("walls", uiDoc, doc);
                 isWall = true;
             }
             else if (chooseFlag == 2)
             {
-                userInput = methods.CreateTextField("Введите тип колонн для разрезания");
+                selectedElements = methods.GetElementsByType("columns", uiDoc, doc);
                 isWall = false;
             }
             else if (chooseFlag == 0)
             {
-                // Обработка случая отмены или закрытия окна без выбора
                 TaskDialog.Show("Внимание", "Выбор отменен или окно закрыто без выбора.");
                 return Result.Cancelled;
             }
-
-            string type = userInput;
-
-            Transaction transactionFirst = new Transaction(doc, "Get elements");
-            transactionFirst.Start();
-            // Выбор категории элементов в зависимости от типа
-            BuiltInCategory category = isWall ? BuiltInCategory.OST_Walls : BuiltInCategory.OST_Columns;
-            FilteredElementCollector collector = new FilteredElementCollector(doc);
-            collector.OfCategory(category).WhereElementIsNotElementType().ToElements();
-
-            // Фильтрация элементов по выбранному типу
-            List<Element> selectedElements = new List<Element>();
-
-            foreach (Element e in collector)
-            {
-                Parameter typeParam = e.LookupParameter("Тип");
-                if (typeParam != null && typeParam.AsValueString() == type)
-                {
-                    selectedElements.Add(e);
-                }
-            }
-
-
             // Получение списка уровней
             FilteredElementCollector levelCollector = new FilteredElementCollector(doc).OfClass(typeof(Level));
             List<Level> levels = new List<Level>(levelCollector.ToElements().Cast<Level>());
             levels.Sort((x, y) => x.Elevation.CompareTo(y.Elevation));
-            transactionFirst.Commit();
 
             // Начало транзакции
             Transaction transactionSecond = new Transaction(doc, "Copy Elements");

@@ -15,27 +15,11 @@
             var uiDoc = uiApp.ActiveUIDocument;
             var doc = uiDoc.Document;
 
-            Methods methods = new Methods();
-
-            string userInput = methods.CreateTextField("Введите тип стен для совмещения");
-            string type = userInput;
-
-            FilteredElementCollector collector = new FilteredElementCollector(doc);
-            collector.OfCategory(BuiltInCategory.OST_Walls).WhereElementIsNotElementType();
-
-            List<Element> wallElements = new List<Element>();
-            foreach (Wall wall in collector)
-            {
-                Parameter typeParam = wall.LookupParameter("Тип");
-                if (typeParam != null && typeParam.AsValueString() == type)
-                {
-                    wallElements.Add(wall);
-                }
-            }
+            Utils methods = new Utils();
+            List<Element> wallElements = methods.GetElementsByType("walls", uiDoc, doc);
 
             Transaction transaction = new Transaction(doc, "Update Walls");
             transaction.Start();
-
             foreach (Wall wall in wallElements)
             {
                 for (int i = 0; i < 2; i++)
@@ -46,7 +30,6 @@
                         WallUtils.AllowWallJoinAtEnd(wall, i);
                 }
             }
-
             transaction.Commit();
             return Result.Succeeded;
         }
