@@ -144,9 +144,9 @@
             }
         }
 
-        public HashSet<ElementId> GetIntersectionsWithElements(List<Element> elements, Document doc)
+        public List<Element> GetIntersectionsWithElements(List<Element> elements, Document doc)
         {
-            HashSet<ElementId> intersections = new HashSet<ElementId>();
+            List<Element> intersections = new List<Element>();
 
             foreach (Element element in elements)
             {
@@ -160,7 +160,7 @@
 
                 foreach (Element intersectedElement in collector.Excluding(ids_exclude).WherePasses(bbfilter))
                 {
-                    intersections.Add(intersectedElement.Id);
+                    intersections.Add(intersectedElement);
                 }
             }
 

@@ -33,18 +33,8 @@
                 .OfClass(typeof(FamilyInstance))
                 .ToElements());
 
-            // Получение списка пересечений
-            HashSet<ElementId> intersectionIds = methods.GetIntersectionsWithElements(selectedElements, doc);
-
             // Создание списка для хранения элементов
-            List<Element> intersectingElements = new List<Element>();
-
-            // Нахождение элементов по их идентификаторам
-            foreach (ElementId elementId in intersectionIds)
-            {
-                Element element = doc.GetElement(elementId);
-                intersectingElements.Add(element);
-            }
+            List<Element> intersectingElements = methods.GetIntersectionsWithElements(selectedElements, doc);
 
             // Начало транзакции
             Transaction transaction = new Transaction(doc, "Cut Geometry");
