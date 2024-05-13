@@ -2,7 +2,7 @@
 <RevitAddIns>
 	<AddIn Type="Application">
 		<Name>Plugins Giprobum</Name>
-		<Assembly>C:\Users\polen\Desktop\_blog\plugins\plugins.dll</Assembly>
+		<Assembly>C:\Users\polen\Desktop\Revit\Plugins\src\plugins\bin\x64\Debug\pluginsInt.dll</Assembly>
 		<AddInId>F11A4799-1E7B-4349-BEBB-C359C469FD09</AddInId>
 		<FullClassName>plugins.Main</FullClassName>
 		<VendorId>Vladislav Polenkov</VendorId>

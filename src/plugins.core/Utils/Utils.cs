@@ -3,6 +3,7 @@
     using Autodesk.Revit.DB;
     using Autodesk.Revit.UI;
     using Autodesk.Revit.UI.Selection;
+    using System;
     using System.Collections.Generic;
     using System.Windows.Forms;
     using Form = System.Windows.Forms.Form;
@@ -93,57 +94,6 @@
             return 0; // 0, если нажата кнопка "Отмена" или окно закрыто без выбора
         }
 
-        public string ShowFamilyTypeSelectionForm(Document doc)
-        {
-            // Создание диалогового окна
-            System.Windows.Forms.Form form = new System.Windows.Forms.Form();
-            form.Text = "Выберите тип семейства";
-            form.Size = new System.Drawing.Size(400, 150);
-            form.StartPosition = FormStartPosition.CenterScreen;
-
-            // Создание выпадающего списка для выбора семейства
-            System.Windows.Forms.ComboBox comboBoxFamilyTypes = new System.Windows.Forms.ComboBox();
-            comboBoxFamilyTypes.Location = new System.Drawing.Point(20, 20);
-            comboBoxFamilyTypes.Size = new System.Drawing.Size(200, 20);
-
-            // Добавление семейств в выпадающий список
-            FilteredElementCollector collector = new FilteredElementCollector(doc);
-            ICollection<ElementId> familyTypeIds = collector.OfClass(typeof(FamilySymbol)).ToElementIds();
-            foreach (ElementId familyTypeId in familyTypeIds)
-            {
-                FamilySymbol familyType = doc.GetElement(familyTypeId) as FamilySymbol;
-                comboBoxFamilyTypes.Items.Add(familyType.Name);
-            }
-
-            // Кнопка для подтверждения выбора
-            Button buttonOK = new Button();
-            buttonOK.Text = "OK";
-            buttonOK.DialogResult = DialogResult.OK;
-            buttonOK.Location = new System.Drawing.Point(20, 50);
-
-            // Обработчик события нажатия кнопки OK
-            buttonOK.Click += (sender, e) =>
-            {
-                form.Close();
-            };
-
-            // Добавление элементов на форму
-            form.Controls.AddRange(new System.Windows.Forms.Control[] { comboBoxFamilyTypes, buttonOK });
-
-            // Отображение диалогового окна
-            form.ShowDialog();
-
-            // Возврат выбранного типа семейства
-            if (comboBoxFamilyTypes.SelectedItem != null)
-            {
-                return comboBoxFamilyTypes.SelectedItem.ToString();
-            }
-            else
-            {
-                return null;
-            }
-        }
-
         public List<Element> GetIntersectionsWithElements(List<Element> elements, Document doc)
         {
             List<Element> intersections = new List<Element>();
@@ -203,6 +153,8 @@
                         selectedElements = uiDoc.Selection.PickObjects(ObjectType.Element, new WallSelectionFilter(), "Выберите объекты");
                     else if (elementType == "columns")
                         selectedElements = uiDoc.Selection.PickObjects(ObjectType.Element, new ColumnSelectionFilter(), "Выберите объекты");
+                    else if (elementType == "holes")
+                        selectedElements = uiDoc.Selection.PickObjects(ObjectType.Element, new HoleSelectionFilter(), "Выберите объекты");
                     foreach (var reference in selectedElements)
                     {
                         elements.Add(doc.GetElement(reference));
@@ -216,21 +168,28 @@
 
                 if (resultDialog == 2)
                 {
-                    string type = elements[0].LookupParameter("Тип").AsValueString();
-                    FilteredElementCollector collector = new FilteredElementCollector(doc);
-                    if (elementType == "walls")
-                        collector.OfCategory(BuiltInCategory.OST_Walls).WhereElementIsNotElementType();
-                    else if (elementType == "columns")
-                        collector.OfCategory(BuiltInCategory.OST_Columns).WhereElementIsNotElementType();
-
-                    elements = new List<Element>();
-                    foreach (var element in collector)
+                    if (elementType != "holes")
                     {
-                        Parameter typeParam = element.LookupParameter("Тип");
-                        if (typeParam != null && typeParam.AsValueString() == type)
+                        string type = elements[0].LookupParameter("Тип").AsValueString();
+                        FilteredElementCollector collector = new FilteredElementCollector(doc);
+                        if (elementType == "walls")
+                            collector.OfCategory(BuiltInCategory.OST_Walls).WhereElementIsNotElementType();
+                        else if (elementType == "columns")
+                            collector.OfCategory(BuiltInCategory.OST_Columns).WhereElementIsNotElementType();
+
+                        elements = new List<Element>();
+                        foreach (var element in collector)
                         {
-                            elements.Add(element);
+                            Parameter typeParam = element.LookupParameter("Тип");
+                            if (typeParam != null && typeParam.AsValueString() == type)
+                            {
+                                elements.Add(element);
+                            }
                         }
+                    }
+                    else
+                    {
+                        elements = FindFamilyElements(doc, elements[0]);
                     }
                 }
             }
@@ -241,6 +200,24 @@
             }
 
             return elements;
+        }
+
+        public List<Element> FindFamilyElements(Document doc, Element element)
+        {
+            try
+            {
+                FamilyInstance familyInstance = element as FamilyInstance;
+                FamilySymbol family = familyInstance.Symbol;
+                FilteredElementCollector collector = new FilteredElementCollector(doc);
+                FamilyInstanceFilter filter = new FamilyInstanceFilter(doc, family.Id);
+                List<Element> familyInstances = new List<Element>(collector.WherePasses(filter).ToElements());
+                return familyInstances;
+            }
+            catch (Exception ex)
+            {
+                TaskDialog.Show("Error", ex.Message);
+                return null;
+            }
         }
 
         public class WallSelectionFilter : ISelectionFilter
@@ -269,45 +246,17 @@
             }
         }
 
-        //public string CreateTextField(string formText)
-        //{
-        //    // Создание формы для ввода текста
-        //    Form userInputForm = new Form();
-        //    userInputForm.Text = formText;
-        //    userInputForm.Size = new System.Drawing.Size(500, 130);
+        public class HoleSelectionFilter : ISelectionFilter
+        {
+            public bool AllowElement(Element elem)
+            {
+                return elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_GenericModel;
+            }
 
-        //    // Создание текстового поля для ввода
-        //    System.Windows.Forms.TextBox userInputTextBox = new System.Windows.Forms.TextBox();
-        //    userInputTextBox.Location = new System.Drawing.Point(20, 20);
-        //    userInputTextBox.Size = new System.Drawing.Size(450, 20);
-
-        //    // Создание кнопки для подтверждения ввода
-        //    Button confirmButton = new Button();
-        //    confirmButton.Text = "OK";
-        //    confirmButton.Location = new System.Drawing.Point(20, 50);
-
-        //    // Объявление переменной для хранения введенного пользователем текста
-        //    string userInput = "";
-
-        //    // Обработчик события нажатия кнопки
-        //    confirmButton.Click += (sender, e) =>
-        //    {
-        //        // Получение введенного пользователем текста
-        //        userInput = userInputTextBox.Text;
-
-        //        // Закрытие формы после получения текста
-        //        userInputForm.Close();
-        //    };
-
-        //    // Добавление элементов на форму
-        //    userInputForm.Controls.Add(userInputTextBox);
-        //    userInputForm.Controls.Add(confirmButton);
-
-        //    // Отображение формы
-        //    userInputForm.ShowDialog();
-
-        //    // Возвращение введенного пользователем текста
-        //    return userInput;
-        //}
+            public bool AllowReference(Reference reference, XYZ position)
+            {
+                return true;
+            }
+        }
     }
 }

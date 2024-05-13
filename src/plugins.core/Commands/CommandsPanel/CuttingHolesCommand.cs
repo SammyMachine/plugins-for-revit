@@ -17,21 +17,7 @@
             var doc = uiDoc.Document;
 
             Utils methods = new Utils();
-
-            // Показать форму для выбора типа семейства
-            string selectedFamilyType = methods.ShowFamilyTypeSelectionForm(doc);
-            if (selectedFamilyType == null)
-            {
-                // Обработка отмены или закрытия окна без выбора
-                TaskDialog.Show("Внимание", "Выбор отменен или окно закрыто без выбора.");
-                return Result.Cancelled;
-            }
-
-            // Получение выбранных элементов
-            List<Element> selectedElements = new List<Element>(new FilteredElementCollector(doc)
-                .WhereElementIsNotElementType()
-                .OfClass(typeof(FamilyInstance))
-                .ToElements());
+            List<Element> selectedElements = methods.GetElementsByType("holes", uiDoc, doc);
 
             // Создание списка для хранения элементов
             List<Element> intersectingElements = methods.GetIntersectionsWithElements(selectedElements, doc);
@@ -50,10 +36,8 @@
                     cutResults.Add(methods.CutGeometry(doc, item1, item2));
                 }
             }
-
             // Завершение транзакции
             transaction.Commit();
-
             return Result.Succeeded;
         }
 
