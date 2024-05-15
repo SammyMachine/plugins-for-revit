@@ -22,21 +22,31 @@
             int chooseFlag = methods.CreateChooseForm();
             bool isWall = false;
             List<Element> selectedElements = new List<Element>();
-            if (chooseFlag == 1)
+            try
             {
-                selectedElements = methods.GetElementsByType("walls", uiDoc, doc);
-                isWall = true;
+                if (chooseFlag == 1)
+                {
+                    selectedElements = methods.GetElementsByType("walls", uiDoc, doc);
+                    isWall = true;
+                }
+                else if (chooseFlag == 2)
+                {
+                    selectedElements = methods.GetElementsByType("columns", uiDoc, doc);
+                    isWall = false;
+                }
+                else if (chooseFlag == 0)
+                {
+                    TaskDialog.Show("Внимание", "Выбор отменен или окно закрыто без выбора.");
+                    return Result.Cancelled;
+                }
+                if (selectedElements == null) return Result.Cancelled;
             }
-            else if (chooseFlag == 2)
-            {
-                selectedElements = methods.GetElementsByType("columns", uiDoc, doc);
-                isWall = false;
-            }
-            else if (chooseFlag == 0)
+            catch (Exception) 
             {
                 TaskDialog.Show("Внимание", "Выбор отменен или окно закрыто без выбора.");
                 return Result.Cancelled;
             }
+            
             Dictionary<Element, List<Level>> intersectingLevelsMap = methods.GetIntersectingLevels(selectedElements, doc);
             foreach (var kvp in intersectingLevelsMap)
             {

@@ -3,7 +3,7 @@
     using Autodesk.Revit.Attributes;
     using Autodesk.Revit.DB;
     using Autodesk.Revit.UI;
-    using plugins.core;
+    using System;
     using System.Collections.Generic;
     [Transaction(TransactionMode.Manual)]
     [Regeneration(RegenerationOption.Manual)]
@@ -17,8 +17,17 @@
             var doc = uiDoc.Document;
 
             Utils methods = new Utils();
-            List<Element> selectedElements = methods.GetElementsByType("holes", uiDoc, doc);
-
+            List<Element> selectedElements = new List<Element>();
+            try
+            {
+                selectedElements = methods.GetElementsByType("holes", uiDoc, doc);
+                if (selectedElements == null) return Result.Cancelled;
+            }
+            catch (Exception)
+            {
+                TaskDialog.Show("Внимание", "Выбор отменен или окно закрыто без выбора.");
+                return Result.Cancelled;
+            }
             // Создание списка для хранения элементов
             List<Element> intersectingElements = methods.GetIntersectionsWithElements(selectedElements, doc);
 

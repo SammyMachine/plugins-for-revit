@@ -149,7 +149,6 @@
                         intersectingLevels.Add(level);
                     }
                 }
-
                 // Добавляем элемент и список пересекающихся с ним уровней в словарь
                 intersectingLevelsMap[element] = intersectingLevels;
             }
@@ -206,11 +205,11 @@
                     else if (elementType == "columns")
                         selectedElements = uiDoc.Selection.PickObjects(ObjectType.Element, new ColumnSelectionFilter(), "Выберите объекты");
                     else if (elementType == "holes")
-                        selectedElements = uiDoc.Selection.PickObjects(ObjectType.Element, new HoleSelectionFilter(), "Выберите объекты");
+                        selectedElements = uiDoc.Selection.PickObjects(ObjectType.Element, new ColumnSelectionFilter(), "Выберите объекты");
                     foreach (var reference in selectedElements)
-                    {
-                        elements.Add(doc.GetElement(reference));
-                    }
+                {
+                    elements.Add(doc.GetElement(reference));
+                }
                 }
                 catch (Autodesk.Revit.Exceptions.OperationCanceledException)
                 {
