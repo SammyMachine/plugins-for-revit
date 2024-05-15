@@ -6,6 +6,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Security.Cryptography;
+
     [Transaction(TransactionMode.Manual)]
     [Regeneration(RegenerationOption.Manual)]
     public class SplittingWallsAndColumnsCommand : IExternalCommand
@@ -35,17 +37,23 @@
                 TaskDialog.Show("Внимание", "Выбор отменен или окно закрыто без выбора.");
                 return Result.Cancelled;
             }
-            // Получение списка уровней
-            FilteredElementCollector levelCollector = new FilteredElementCollector(doc).OfClass(typeof(Level));
-            List<Level> levels = new List<Level>(levelCollector.ToElements().Cast<Level>());
-            levels.Sort((x, y) => x.Elevation.CompareTo(y.Elevation));
+            Dictionary<Element, List<Level>> intersectingLevelsMap = methods.GetIntersectingLevels(selectedElements, doc);
+            foreach (var kvp in intersectingLevelsMap)
+            {
+                List<Level> levels = kvp.Value;
+                levels.Sort((x, y) => x.Elevation.CompareTo(y.Elevation));
+            }
+
 
             // Начало транзакции
             Transaction transactionSecond = new Transaction(doc, "Copy Elements");
             transactionSecond.Start();
 
-            foreach (Element selectedElement in selectedElements)
+            foreach (var kvp in intersectingLevelsMap)
             {
+                Element selectedElement = kvp.Key;
+                List<Level> levels = kvp.Value;
+
                 List<ElementId> copiedElements = new List<ElementId>();
 
                 // Получение параметров уровней для элементов

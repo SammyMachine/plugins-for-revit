@@ -5,6 +5,7 @@
     using Autodesk.Revit.UI.Selection;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Windows.Forms;
     using Form = System.Windows.Forms.Form;
     class Utils
@@ -115,6 +116,57 @@
             }
 
             return intersections;
+        }
+
+        public Dictionary<Element, List<Level>> GetIntersectingLevels(List<Element> elements, Document doc)
+        {
+            FilteredElementCollector levelCollector = new FilteredElementCollector(doc).OfClass(typeof(Level));
+            List<Level> allLevels = levelCollector.Cast<Level>().ToList();
+
+            // Создаем словарь для хранения уровней, пересекающихся с элементами
+            Dictionary<Element, List<Level>> intersectingLevelsMap = new Dictionary<Element, List<Level>>();
+
+            foreach (Element element in elements)
+            {
+                BoundingBoxXYZ elementBB = element.get_BoundingBox(doc.ActiveView);
+                if (elementBB == null)
+                    continue;
+
+                // Создаем список для хранения уровней, с которыми пересекается текущий элемент
+                List<Level> intersectingLevels = new List<Level>();
+
+                foreach (Level level in allLevels)
+                {
+                    Element levelElement = level as Element;
+                    BoundingBoxXYZ levelBB = levelElement.get_BoundingBox(doc.ActiveView);
+                    if (levelBB == null)
+                        continue;
+
+                    // Проверяем пересечение границ уровня с границами элемента
+                    if (IsBoundingBoxIntersecting(levelBB, elementBB))
+                    {
+                        // Если есть пересечение, добавляем уровень в список
+                        intersectingLevels.Add(level);
+                    }
+                }
+
+                // Добавляем элемент и список пересекающихся с ним уровней в словарь
+                intersectingLevelsMap[element] = intersectingLevels;
+            }
+
+            return intersectingLevelsMap;
+        }
+
+        public bool IsBoundingBoxIntersecting(BoundingBoxXYZ bb1, BoundingBoxXYZ bb2)
+        {
+            XYZ bb1Min = bb1.Min;
+            XYZ bb1Max = bb1.Max;
+            XYZ bb2Min = bb2.Min;
+            XYZ bb2Max = bb2.Max;
+
+            return (bb1Min.X <= bb2Max.X && bb1Max.X >= bb2Min.X) &&
+                   (bb1Min.Y <= bb2Max.Y && bb1Max.Y >= bb2Min.Y) &&
+                   (bb1Min.Z <= bb2Max.Z && bb1Max.Z >= bb2Min.Z);
         }
 
         public bool CutGeometry(Document doc, Element item1, Element item2)
