@@ -15,7 +15,7 @@
             var app = uiApp.Application;
             var uiDoc = uiApp.ActiveUIDocument;
             var doc = uiDoc.Document;
-            List<Element> wallElements = new List<Element>();
+            List<Element> wallElements;
             Utils methods = new Utils();
             try {
                 wallElements = methods.GetElementsByType("walls", uiDoc, doc);

@@ -5,8 +5,6 @@
     using Autodesk.Revit.UI;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Security.Cryptography;
 
     [Transaction(TransactionMode.Manual)]
     [Regeneration(RegenerationOption.Manual)]

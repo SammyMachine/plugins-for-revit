@@ -17,7 +17,7 @@
             var doc = uiDoc.Document;
 
             Utils methods = new Utils();
-            List<Element> selectedElements = new List<Element>();
+            List<Element> selectedElements;
             try
             {
                 selectedElements = methods.GetElementsByType("holes", uiDoc, doc);

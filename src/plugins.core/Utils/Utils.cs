@@ -205,7 +205,7 @@
                     else if (elementType == "columns")
                         selectedElements = uiDoc.Selection.PickObjects(ObjectType.Element, new ColumnSelectionFilter(), "Выберите объекты");
                     else if (elementType == "holes")
-                        selectedElements = uiDoc.Selection.PickObjects(ObjectType.Element, new ColumnSelectionFilter(), "Выберите объекты");
+                        selectedElements = uiDoc.Selection.PickObjects(ObjectType.Element, new HoleSelectionFilter(), "Выберите объекты");
                     foreach (var reference in selectedElements)
                 {
                     elements.Add(doc.GetElement(reference));
