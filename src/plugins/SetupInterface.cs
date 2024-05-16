@@ -7,7 +7,6 @@
     {
         public SetupInterface()
         {
-
         }
         public void Initialize(UIControlledApplication app)
         {
@@ -24,7 +23,6 @@
                 IconImageName = "Anticonnection.png",
                 TooltipImageName = "Anticonnection.png"
             };
-
             var antiConnectionsButton = RevitPushButton.Create(antiConnectionsButtonData);
 
             var splitWallsAndColumnsButtonData = new RevitPushButtonDataModel

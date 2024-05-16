@@ -12,10 +12,8 @@
         Result IExternalCommand.Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             var uiApp = commandData.Application;
-            var app = uiApp.Application;
             var uiDoc = uiApp.ActiveUIDocument;
             var doc = uiDoc.Document;
-
             Utils methods = new Utils();
             List<Element> selectedElements;
             try
@@ -30,13 +28,10 @@
             }
             // Создание списка для хранения элементов
             List<Element> intersectingElements = methods.GetIntersectionsWithElements(selectedElements, doc);
-
             // Начало транзакции
             Transaction transaction = new Transaction(doc, "Cut Geometry");
             transaction.Start();
-
             List<bool> cutResults = new List<bool>();
-
             // Выполнение операции вырезания геометрии
             foreach (Element item1 in intersectingElements)
             {

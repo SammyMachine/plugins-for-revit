@@ -44,39 +44,29 @@
                 TaskDialog.Show("Внимание", "Выбор отменен или окно закрыто без выбора.");
                 return Result.Cancelled;
             }
-            
             Dictionary<Element, List<Level>> intersectingLevelsMap = methods.GetIntersectingLevels(selectedElements, doc);
             foreach (var kvp in intersectingLevelsMap)
             {
                 List<Level> levels = kvp.Value;
                 levels.Sort((x, y) => x.Elevation.CompareTo(y.Elevation));
             }
-
-
             // Начало транзакции
             Transaction transactionSecond = new Transaction(doc, "Copy Elements");
             transactionSecond.Start();
-
             foreach (var kvp in intersectingLevelsMap)
             {
                 Element selectedElement = kvp.Key;
                 List<Level> levels = kvp.Value;
-
                 List<ElementId> copiedElements = new List<ElementId>();
-
                 // Получение параметров уровней для элементов
                 string baseConstraintParamName = isWall ? "Зависимость снизу" : "Зависимость снизу";
                 string topConstraintParamName = isWall ? "Зависимость сверху" : "Зависимость сверху";
-
                 Parameter baseConstraintParam = selectedElement.LookupParameter(baseConstraintParamName);
                 Parameter topConstraintParam = selectedElement.LookupParameter(topConstraintParamName);
-
                 ElementId baseLevelId = baseConstraintParam.AsElementId();
                 ElementId topLevelId = topConstraintParam.AsElementId();
-
                 int baseLevelIndex = levels.FindIndex(level => level.Id == baseLevelId);
                 int topLevelIndex = levels.FindIndex(level => level.Id == topLevelId);
-
                 while (baseLevelIndex < topLevelIndex)
                 {
                     try
@@ -86,14 +76,11 @@
                         foreach (ElementId copiedElementId in copiedElementIds)
                         {
                             Element copiedElement = doc.GetElement(copiedElementId);
-
                             // Установка параметров уровней для скопированного элемента
                             Parameter baseConstraintParamCopy = copiedElement.LookupParameter(baseConstraintParamName);
                             baseConstraintParamCopy.Set(levels[baseLevelIndex].Id);
-
                             Parameter topConstraintParamCopy = copiedElement.LookupParameter(topConstraintParamName);
                             topConstraintParamCopy.Set(levels[baseLevelIndex + 1].Id);
-
                             copiedElements.Add(copiedElementId);
                         }
                     }
@@ -101,14 +88,11 @@
                     {
                         TaskDialog.Show("Error", e.Message);
                     }
-
                     baseLevelIndex++;
                 }
-
                 // Удаление исходного элемента
                 doc.Delete(selectedElement.Id);
             }
-
             // Завершение транзакции
             transactionSecond.Commit();
             return Result.Succeeded;

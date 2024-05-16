@@ -12,7 +12,6 @@
         Result IExternalCommand.Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             var uiApp = commandData.Application;
-            var app = uiApp.Application;
             var uiDoc = uiApp.ActiveUIDocument;
             var doc = uiDoc.Document;
             List<Element> wallElements;

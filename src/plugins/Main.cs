@@ -1,7 +1,6 @@
 ﻿namespace plugins
 {
     using Autodesk.Revit.UI;
-
     public class Main : IExternalApplication
     {
         Result IExternalApplication.OnStartup(UIControlledApplication application)
